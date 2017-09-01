@@ -1,21 +1,18 @@
 import xml
 
-def repr_decorator(method):
+class ReprMixin:
     """
-    Takes a __repr__-method as an argument, returns
-    a fully formatted object representation
-
-    The __repr__-method itself doesn't need to do anything."
+    Automatically generates a __repr__-method for any class
     """
-    
-    def inner(self):
-        variables = [f"{k}={v}" for k,v in vars(self).items()]
+    def __repr__(self):
+        variables = [f"{k}={v}" if type(v) != str
+                     else f'{k}="{v}"'
+                     for k,v in vars(self).items()]
         v_string = ", ".join(variables)
         class_name = self.__class__.__name__
         return f"{class_name}({{}})".format(v_string)
-    return inner
 
-class Player:
+class Player(ReprMixin):
     def __init__(self, name, level=1, inventory=None):
         self.name = name
         self.level = level
@@ -24,12 +21,12 @@ class Player:
         else:
             self.inventory = inventory
 
-    @repr_decorator
-    def __repr__(self):
-        pass
+    #@repr_decorator
+    #def __repr__(self):
+    #    pass
 
 
-class Inventory:
+class Inventory(ReprMixin):
 
     ITEMS_LIMIT = 28
     GEAR_SLOTS = {
@@ -39,13 +36,13 @@ class Inventory:
         "legs":   None,
         "shield": None,
         }
-    
+
     def __init__(self, gear=None, items=None):
         if gear is None:
             self.gear = []
         else: #TODO: Check for validity
             self.gear = gear
-            
+
         if items is None:
             self.items = []
         elif len(items) <= self.ITEMS_LIMIT:
@@ -58,9 +55,9 @@ class Inventory:
     def __len__(self):
         return self.itemcount
 
-    @repr_decorator
-    def __repr__(self):
-        pass
+    #@repr_decorator
+    #def __repr__(self):
+    #    pass
 
     def append(self, item):
         if self.itemcount < self.ITEMS_LIMIT:
@@ -69,16 +66,16 @@ class Inventory:
         else:
             ValueError("No room in inventory")
 
-class Item:
+class Item(ReprMixin):
     def __init__(self, id_num: int):
-        
+
         self.name = id_num
         self.slot = id_num
         self.stats = id_num
 
-    @repr_decorator
-    def __repr__(self):
-        pass
+    #@repr_decorator
+    #def __repr__(self):
+    #    pass
 
 ##gear = [Item(0),
 ##        Item(1),]
