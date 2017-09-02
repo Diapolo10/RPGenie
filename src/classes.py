@@ -1,6 +1,16 @@
-import xml
+from xml.etree import ElementTree as ET
+from abc import ABCMeta, abstractmethod
 
-class ReprMixin:
+from settings import *
+
+class XmlDataMixin(metaclass=ABCMeta):
+    def get_by_ID(self):
+        with open(XML_FILE) as f:
+            tree = ET.parse(f)
+            root = tree.getroot()
+
+
+class ReprMixin(metaclass=ABCMeta):
     """
     Automatically generates a __repr__-method for any class
     """
@@ -20,11 +30,6 @@ class Player(ReprMixin):
             self.inventory = Inventory()
         else:
             self.inventory = inventory
-
-    #@repr_decorator
-    #def __repr__(self):
-    #    pass
-
 
 class Inventory(ReprMixin):
 
@@ -55,10 +60,6 @@ class Inventory(ReprMixin):
     def __len__(self):
         return self.itemcount
 
-    #@repr_decorator
-    #def __repr__(self):
-    #    pass
-
     def append(self, item):
         if self.itemcount < self.ITEMS_LIMIT:
             self.items.append(item)
@@ -72,10 +73,6 @@ class Item(ReprMixin):
         self.name = id_num
         self.slot = id_num
         self.stats = id_num
-
-    #@repr_decorator
-    #def __repr__(self):
-    #    pass
 
 ##gear = [Item(0),
 ##        Item(1),]
