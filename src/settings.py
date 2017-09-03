@@ -1,1 +1,1 @@
-XML_FILE = "items.xml"
+DATA_FILE = "data.toml"
