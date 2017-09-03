@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+
+  <items>
+    <!-- Collection of item objects -->
+    <item id=0>
+      <name>Wooden sword</name>
+      <type>weapon</type>
+      <atk>5</atk>
+      <def>3</def>
+      <specialAttack>None</specialAttack>
+    </item>
+
+    <item id=1>
+      <name>Pebble</name>
+      <type>item</type>
+    </item>
+
+    <item id=2>
+      <name>Viking helmet</name>
+      <type>helmet</type>
+      <atk>0</atk>
+      <def>12</def>
+    </item>
+
+  </items>
+
+  <entities>
+
+  </entities>
+
+</data>
