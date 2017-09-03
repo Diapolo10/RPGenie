@@ -100,7 +100,14 @@ class Inventory(ReprMixin):
             self.items.append(item)
             self.itemcount += 1
         else:
-            ValueError("No room in inventory")
+            print("No room in inventory")
+
+    def remove(self, item: Item):
+        try:
+            self.items.remove(item)
+            self.itemcount -= 1
+        except ValueError:
+            print(f"You don't have any {item.name}s")
 
     def equip(self, item_index: int):
         """ Equip an item from inventory at the specified index. """
@@ -108,7 +115,7 @@ class Inventory(ReprMixin):
             item = self.items[item_index] # Find the item to be equipped
             temp = self.gear[item.slot]   # Temporarily store the currently equipped item (if any)
             self.gear[item.slot] = item   # Equip item
-            self.items.remove(item)       # Remove equipped item from inventory
+            self.remove(item)             # Remove equipped item from inventory
             if temp is not None:
                 self.append(temp)
                 print(f"You swapped {temp.name} to {item.name}")
@@ -123,7 +130,7 @@ class Inventory(ReprMixin):
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
             self.gear[slot] = None
-            print("You unequip {self.items[-1]}")
+            print(f"You unequip {self.items[-1].name}")
         else:
             print("That slot is empty")
 
@@ -139,9 +146,10 @@ class Player(ReprMixin):
 def test():
     sword = Item(0)
     bag_of_pebbles = [Item(1) for i in range(30)]
+    helmet = Item(2)
     player = Player("Bob")
     print(player)
-    print(f"Player is carrying {len(player.inventory.items)} items")
+    print(f"Player is carrying {player.inventory.itemcount} items")
     player.inventory.append(sword)
     print(player)
     player.inventory.unequip('weapon')
@@ -151,8 +159,9 @@ def test():
     player.inventory.unequip('weapon')
     print(player)
     for pebble in bag_of_pebbles:
-        print(f"Player is carrying {len(player.inventory.items)} items")
+        print(f"Player is carrying {player.inventory.itemcount} items")
         player.inventory.append(pebble)
+    player.inventory.remove(helmet)
 
 
 if __name__ == "__main__":
