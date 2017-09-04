@@ -1,8 +1,11 @@
 #TODO: Write tests compatible with pytest
 
-from src.classes import *
-from src.mixins import *
-from src.settings import *
+import sys, os
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../src/')
+
+from classes import Item
+from settings import *
 
 items = [Item(i) for i in range(3)]
 

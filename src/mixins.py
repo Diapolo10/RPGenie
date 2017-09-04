@@ -54,7 +54,7 @@ class LevelMixin(metaclass=ABCMeta):
         self.level      = 1
         self.experience = 0
 
-        def nextLevel(self):
+    def nextLevel(self):
         exponent = 1.6
         baseXP = 85
         return math.floor(baseXP * (self.level**exponent))
