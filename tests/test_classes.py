@@ -1,5 +1,9 @@
 #TODO: Write tests compatible with pytest
 
+import sys, os
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../src/')
+
 from classes import Item
 from settings import *
 
