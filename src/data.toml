@@ -20,6 +20,12 @@ type          = "helmet"
 atk           = 0
 def           = 12
 
+[items.3]
+name          = "Wooden shield"
+type          = "shield"
+atk           = 0
+def           = 5
+
 [NPCs]
 
 [enemies]
