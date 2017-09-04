@@ -97,7 +97,7 @@ class LevelMixin(metaclass=ABCMeta):
             print("EXP required for next level:", int(self.nextLevel()-self.experience))
 
 
-    def give_xp(self, amount: int, level_up=True):
+    def give_xp(self, amount: int, level_up=True, print_exp=False):
         """
         Give the object experience points.
 
@@ -105,4 +105,4 @@ class LevelMixin(metaclass=ABCMeta):
         """
         self.experience += amount
         if level_up:
-            self.levelup()
+            self.levelup(print_exp)
