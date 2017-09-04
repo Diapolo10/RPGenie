@@ -40,9 +40,32 @@ class ReprMixin(metaclass=ABCMeta):
     Automatically generates a __repr__-method for any class
     """
     def __repr__(self):
+        """ Automatically generated __repr__-method """
         variables = [f"{k}={v}" if type(v) != str
                      else f'{k}="{v}"'
                      for k,v in vars(self).items()]
         v_string = ", ".join(variables)
         class_name = self.__class__.__name__
         return f"{class_name}({{}})".format(v_string)
+
+class LevelMixin(metaclass=ABCMeta):
+    """ Gives standard level-up mechanics for the child class """
+    def __init__(self):
+        self.level      = 1
+        self.experience = 0
+
+    def nextLevel(self):
+        exponent = 1.6
+        baseXP = 85
+        return math.floor(baseXP * (self.level**exponent))
+
+    def levelup(self):
+        while True:
+            if self.nextLevel() <= self.experience:
+                self.level += 1
+            else:
+                print("EXP required for next level:", int(self.nextLevel()-self.experience))
+                break
+
+    def give_xp(self, amount):
+        self.experience += amount

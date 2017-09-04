@@ -48,3 +48,10 @@ Temporary Items
 
 # Python cache
 __pycache__/
+
+# pytest cache
+.cache
+
+# CMD launcher
+src/cmd.bat
+*.egg-info/

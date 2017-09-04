@@ -1,0 +1,27 @@
+###############
+#  Data file  #
+###############
+
+[items]
+
+[items.0]
+name          = "Wooden sword"
+type          = "weapon"
+atk           = 5
+def           = 3
+
+[items.1]
+name          = "Pebble"
+type          = "item"
+
+[items.2]
+name          = "Viking helmet"
+type          = "helmet"
+atk           = 0
+def           = 12
+
+[NPCs]
+
+[enemies]
+
+[entities]
