@@ -19,8 +19,11 @@ class Item(ReprMixin, TomlDataMixin):
                  'legs',
                  'shield',)
 
-    def __init__(self, id_num: int):
-        item_data = self.get_item_by_ID(id_num)
+    def __init__(self, id_num: int, **kwargs):
+        item_data = self.get_item_by_ID(
+            id_num,
+            file=kwargs.get('file', ITEM_FILE)
+        )
         self.name = item_data['name']
         self.slot = item_data['type']
         if self.slot in self.EQUIPMENT:
@@ -97,34 +100,19 @@ class Inventory(ReprMixin):
             print("That slot is empty")
 
 class Player(ReprMixin):
-    def __init__(self, name, level=1, inventory=None):
+    """ Base class for player objects """
+    def __init__(self, name, inventory=None):
+        """
+        Initialises a player object
+
+        name: player's (character) name
+        inventory: an Inventory() object that functions as the player's inventory
+        """
         self.name = name
-        self.level = level
         if inventory is None:
             self.inventory = Inventory()
         else:
             self.inventory = inventory
 
-def test():
-    sword = Item(0)
-    bag_of_pebbles = [Item(1) for i in range(30)]
-    helmet = Item(2)
-    player = Player("Bob")
-    print(player)
-    print(f"Player is carrying {player.inventory.itemcount} items")
-    player.inventory.append(sword)
-    print(player)
-    player.inventory.unequip('weapon')
-    print(player)
-    player.inventory.equip(player.inventory.items.index(sword))
-    print(player)
-    player.inventory.unequip('weapon')
-    print(player)
-    for pebble in bag_of_pebbles:
-        print(f"Player is carrying {player.inventory.itemcount} items")
-        player.inventory.append(pebble)
-    player.inventory.remove(helmet)
-
-
 if __name__ == "__main__":
-    test()
+    pass
