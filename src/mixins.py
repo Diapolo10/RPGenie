@@ -48,6 +48,7 @@ class ReprMixin(metaclass=ABCMeta):
         class_name = self.__class__.__name__
         return f"{class_name}({{}})".format(v_string)
 
+
 class LevelMixin(metaclass=ABCMeta):
     """ Gives standard level-up mechanics for the child class """
     def __init__(self, **kwargs):
@@ -66,7 +67,6 @@ class LevelMixin(metaclass=ABCMeta):
         self.exponent   = float(kwargs.get("exponent", 1.6))
         self.base_exp   = int(kwargs.get("base_exp", 85))
         self.max_level  = int(kwargs.get("max_level", None))
-
 
     def nextLevel(self):
         """ Returns the amount of EXP needed for the next level; no built-in level cap """
@@ -95,7 +95,6 @@ class LevelMixin(metaclass=ABCMeta):
                     print_exp = True
         if print_exp and (self.max_level is None or self.level < self.max_level):
             print("EXP required for next level:", int(self.nextLevel()-self.experience))
-
 
     def give_xp(self, amount: int, level_up=True, print_exp=False):
         """

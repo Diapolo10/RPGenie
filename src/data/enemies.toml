@@ -1,0 +1,30 @@
+# Define enemies for your game here
+# Basic syntax:
+# [enemies.{enemy ID}]
+# name: enemy's in-game name  (type: str)
+# level: enemy's combat level (type: int)
+#
+# Optional attributes:
+# canLevelUp: set whether the enemy can gain experience and level-up in battle; defaults to false
+# specialAttacks: an array of function names the enemy can use as special attacks; empty by default
+
+[enemies]
+
+[enemies.0]
+name           = "Slime block"
+level          = 2
+canLevelUp     = false
+specialAttacks = []
+
+[enemies.1]
+name           = "Giant rat"
+level          = 3
+
+[enemies.2]
+name           = "Vincent the Keen-Eyed" # A boss mock-up
+level          = 13
+canLevelUp     = true
+specialAttacks = [
+    "earthquake",  # Defined in attacks.py or combat.py
+    "supershield", # Defined in attacks.py or combat.py
+]
