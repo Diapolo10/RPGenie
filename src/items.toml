@@ -1,0 +1,42 @@
+# Define items for your game here
+# Basic syntax:
+#
+# [items.{item ID}]
+# name: item's in-game name (type: str)
+# type: on which slot can the item be worn? (type: str)
+#       - weapon: weapon slot
+#       - shield: shield slot
+#       - helmet: helmet slot
+#       - chest: chest slot
+#       - legs: legs slot
+#       - item: cannot be worn; eg. healing items, key items etc.
+#
+# If the item can be worn, a few optional attributes are available:
+# atk: attack damage increase (type: int)
+# def: defence increase       (type: int)
+# specialAttack: you can define a function in your code and
+# add its name as an argument to this (type: str)
+
+[items]
+
+[items.0]
+name          = "Wooden sword"
+type          = "weapon"
+atk           = 5
+def           = 3
+
+[items.1]
+name          = "Pebble"
+type          = "item"
+
+[items.2]
+name          = "Viking helmet"
+type          = "helmet"
+atk           = 0
+def           = 12
+
+[items.3]
+name          = "Wooden shield"
+type          = "shield"
+atk           = 0
+def           = 5
