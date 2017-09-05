@@ -65,14 +65,14 @@ class Inventory(ReprMixin):
             self.items.append(item)
             self.itemcount += 1
         else:
-            print("No room in inventory")
+            return "No room in inventory"
 
     def remove(self, item: Item):
         try:
             self.items.remove(item)
             self.itemcount -= 1
         except ValueError:
-            print(f"You don't have any {item.name}s")
+            return f"You don't have any {item.name}s"
 
     def equip(self, item_index: int):
         """ Equip an item from inventory at the specified index. """
@@ -83,21 +83,21 @@ class Inventory(ReprMixin):
             self.remove(item)             # Remove equipped item from inventory
             if temp is not None:
                 self.append(temp)
-                print(f"You swapped {temp.name} to {item.name}")
+                return f"You swapped {temp.name} to {item.name}"
             else:
-                print(f"You equip {item.name}")
+                return f"You equip {item.name}"
         except KeyError:
-            print("You can't equip that")
+            return "You can't equip that"
         except IndexError:
-            print("There's nothing in that inventory space")
+            return "There's nothing in that inventory space"
 
     def unequip(self, slot: str):
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
             self.gear[slot] = None
-            print(f"You unequip {self.items[-1].name}")
+            return f"You unequip {self.items[-1].name}"
         else:
-            print("That slot is empty")
+            return "That slot is empty"
 
 class Player(ReprMixin):
     """ Base class for player objects """

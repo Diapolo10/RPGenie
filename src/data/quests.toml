@@ -1,0 +1,30 @@
+# Define quests and missions for your game here
+# Basic syntax:
+#
+# [quests.{quest ID}]
+# name: the quest's name
+# is_branching: does the quest have a branching storyline? default; false
+# requirements: array of quest's requirements. default; empty array
+# rewards: dictionary of rewards
+#
+# [quests.{quest ID}.{step}]
+# step_tasks: array of required tasks to complete this step and proceed to the next
+
+[quests]
+
+[quests.0]
+name = "Cook's Assistant"
+is_branching = false
+rewards = {
+  experience=1337,
+  coins=42,
+  items=[ # Contains arrays of two numbers, item ID and amount
+    [0,1],# One wooden sword
+    [2,1],# One viking helmet
+  ]
+}
+
+[quests.0.1]
+step_tasks = { # giveItems -> (who,what,how many)
+  giveItems = (1,1,42),
+}

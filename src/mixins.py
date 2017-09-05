@@ -94,7 +94,7 @@ class LevelMixin(metaclass=ABCMeta):
                 if print_exp is not None:
                     print_exp = True
         if print_exp and (self.max_level is None or self.level < self.max_level):
-            print("EXP required for next level:", int(self.nextLevel()-self.experience))
+            return f"EXP required for next level: {int(self.nextLevel()-self.experience)}"
 
     def give_xp(self, amount: int, level_up=True, print_exp=False):
         """
