@@ -12,25 +12,25 @@ class TomlDataMixin(metaclass=ABCMeta):
     """
     Contains methods for getting data from TOML-files
     """
-    def _get_by_ID(self, ID: int, obj_type: str, file=DATA_FILE) -> dict:
+    def _get_by_ID(self, ID: int, obj_type: str, file: str) -> dict:
         """ 'Low-level' access to TOML-data """
         with open(file) as f:
             data = toml.load(f)
         return data[obj_type][str(ID)]
 
-    def get_item_by_ID(self, ID: int, file=DATA_FILE) -> dict:
+    def get_item_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
         """ Returns a dictionary representation of a given item ID """
         return self._get_by_ID(ID, 'items', file)
 
-    def get_enemy_by_ID(self, ID: int, file=DATA_FILE) -> dict:
+    def get_enemy_by_ID(self, ID: int, file=ENEMY_FILE) -> dict:
         """ Returns a dictionary representation of a given enemy ID """
         return self._get_by_ID(ID, 'enemies', file)
 
-    def get_npc_by_ID(self, ID: int, file=DATA_FILE) -> dict:
+    def get_npc_by_ID(self, ID: int, file=NPC_FILE) -> dict:
         """ Returns a dictionary representation of a given NPC ID """
         return self._get_by_ID(ID, 'NPCs', file)
 
-    def get_entity_by_ID(self, ID: int, file=DATA_FILE) -> dict:
+    def get_entity_by_ID(self, ID: int, file=ENTITY_FILE) -> dict:
         """ Returns a dictionary representation of a given entity ID """
         return self._get_by_ID(ID, 'entities', file)
 
@@ -47,6 +47,7 @@ class ReprMixin(metaclass=ABCMeta):
         v_string = ", ".join(variables)
         class_name = self.__class__.__name__
         return f"{class_name}({{}})".format(v_string)
+
 
 class LevelMixin(metaclass=ABCMeta):
     """ Gives standard level-up mechanics for the child class """
@@ -66,7 +67,6 @@ class LevelMixin(metaclass=ABCMeta):
         self.exponent   = float(kwargs.get("exponent", 1.6))
         self.base_exp   = int(kwargs.get("base_exp", 85))
         self.max_level  = int(kwargs.get("max_level", None))
-
 
     def nextLevel(self):
         """ Returns the amount of EXP needed for the next level; no built-in level cap """
@@ -94,8 +94,7 @@ class LevelMixin(metaclass=ABCMeta):
                 if print_exp is not None:
                     print_exp = True
         if print_exp and (self.max_level is None or self.level < self.max_level):
-            print("EXP required for next level:", int(self.nextLevel()-self.experience))
-
+            return f"EXP required for next level: {int(self.nextLevel()-self.experience)}"
 
     def give_xp(self, amount: int, level_up=True, print_exp=False):
         """

@@ -1,0 +1,25 @@
+# Define game objects, such as sprites, here
+# I propose a syntax like this:
+#
+# [{object family}]
+#
+# [{object family}.{object ID}]
+#
+# And for situational animations/sprites:
+# [{object family}.{object ID}.{animation}]
+#
+# name: object's name, used for debugging or even in-game
+# idle_animation: array of object's idle/base animation frames
+
+[barrier]
+
+[barrier.0]
+name = "wooden_fence"
+idle_animation = ["some_example_sprite.png",]
+
+[barrier.1]
+name = "wooden_door"
+idle_animation = ["another_example_sprite.png",]
+
+[barrier.1.open]
+animation = ["another_example_sprite_open.png",]

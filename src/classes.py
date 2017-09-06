@@ -19,14 +19,24 @@ class Item(ReprMixin, TomlDataMixin):
                  'legs',
                  'shield',)
 
-    def __init__(self, id_num: int):
-        item_data = self.get_item_by_ID(id_num)
+    def __init__(self, id_num: int, **kwargs):
+        item_data = self.get_item_by_ID(
+            id_num,
+            file=kwargs.get('file', ITEM_FILE)
+        )
+        self.ID = id_num
         self.name = item_data['name']
         self.slot = item_data['type']
+
         if self.slot in self.EQUIPMENT:
             self.attack = item_data.get('atk', None)
             self.defence = item_data.get('def', None)
             self.specialAttack = item_data.get('specialAttack', None)
+
+        self.metadata = kwargs.get('meta', None)
+
+    def __eq__(self, value):
+        return self.ID == value.ID and self.metadata == value.metadata
 
 class Inventory(ReprMixin):
 
@@ -55,21 +65,22 @@ class Inventory(ReprMixin):
         self.itemcount = len(self.items)
 
     def __len__(self):
-        return self.itemcount
+        return len(self.items)
 
     def append(self, item: Item):
-        if self.itemcount < self.ITEMS_LIMIT:
+        if len(self) < self.ITEMS_LIMIT:
+            #if self.itemcount < self.ITEMS_LIMIT:
             self.items.append(item)
             self.itemcount += 1
         else:
-            print("No room in inventory")
+            return "No room in inventory"
 
     def remove(self, item: Item):
         try:
             self.items.remove(item)
             self.itemcount -= 1
         except ValueError:
-            print(f"You don't have any {item.name}s")
+            return f"You don't have any {item.name}s"
 
     def equip(self, item_index: int):
         """ Equip an item from inventory at the specified index. """
@@ -80,51 +91,36 @@ class Inventory(ReprMixin):
             self.remove(item)             # Remove equipped item from inventory
             if temp is not None:
                 self.append(temp)
-                print(f"You swapped {temp.name} to {item.name}")
+                return f"You swapped {temp.name} to {item.name}"
             else:
-                print(f"You equip {item.name}")
+                return f"You equip {item.name}"
         except KeyError:
-            print("You can't equip that")
+            return "You can't equip that"
         except IndexError:
-            print("There's nothing in that inventory space")
+            return "There's nothing in that inventory space"
 
     def unequip(self, slot: str):
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
             self.gear[slot] = None
-            print(f"You unequip {self.items[-1].name}")
+            return f"You unequip {self.items[-1].name}"
         else:
-            print("That slot is empty")
+            return "That slot is empty"
 
 class Player(ReprMixin):
-    def __init__(self, name, level=1, inventory=None):
+    """ Base class for player objects """
+    def __init__(self, name, inventory=None):
+        """
+        Initialises a player object
+
+        name: player's (character) name
+        inventory: an Inventory() object that functions as the player's inventory
+        """
         self.name = name
-        self.level = level
         if inventory is None:
             self.inventory = Inventory()
         else:
             self.inventory = inventory
 
-def test():
-    sword = Item(0)
-    bag_of_pebbles = [Item(1) for i in range(30)]
-    helmet = Item(2)
-    player = Player("Bob")
-    print(player)
-    print(f"Player is carrying {player.inventory.itemcount} items")
-    player.inventory.append(sword)
-    print(player)
-    player.inventory.unequip('weapon')
-    print(player)
-    player.inventory.equip(player.inventory.items.index(sword))
-    print(player)
-    player.inventory.unequip('weapon')
-    print(player)
-    for pebble in bag_of_pebbles:
-        print(f"Player is carrying {player.inventory.itemcount} items")
-        player.inventory.append(pebble)
-    player.inventory.remove(helmet)
-
-
 if __name__ == "__main__":
-    test()
+    pass
