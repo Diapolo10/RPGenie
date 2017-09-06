@@ -15,7 +15,8 @@
 # atk: attack damage increase (type: int)
 # def: defence increase       (type: int)
 # specialAttack: you can define a function in your code and
-# add its name as an argument to this (type: str)
+#                add its name as an argument to this (type: str)
+# combine: list of items that, when combined to this item, will produce a new item
 
 [items]
 
@@ -24,10 +25,12 @@ name          = "Wooden sword"
 type          = "weapon"
 atk           = 5
 def           = 3
+combine       = {1 = 4}
 
 [items.1]
 name          = "Pebble"
 type          = "item"
+combine       = {0 = 4}
 
 [items.2]
 name          = "Viking helmet"
@@ -40,3 +43,9 @@ name          = "Wooden shield"
 type          = "shield"
 atk           = 0
 def           = 5
+
+[items.4]
+name          = "Sharpened wooden sword"
+type          = "weapon"
+atk           = 6
+def           = 3
