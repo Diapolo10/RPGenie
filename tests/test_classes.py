@@ -34,3 +34,4 @@ def test_inv():
     assert inv.append(Item(1)) is None
     assert len(inv) == len(items)+1
     assert inv.equip(0) == f"You equip {items[0].name}"
+    assert Item(0) + Item(1) == Item(4)

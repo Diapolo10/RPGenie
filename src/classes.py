@@ -24,9 +24,10 @@ class Item(ReprMixin, TomlDataMixin):
             id_num,
             file=kwargs.get('file', ITEM_FILE)
         )
-        self.ID = id_num
+        self.ID = str(id_num)
         self.name = item_data['name']
         self.slot = item_data['type']
+        self.combinations = item_data.get('combine', None)
 
         if self.slot in self.EQUIPMENT:
             self.attack = item_data.get('atk', None)
@@ -35,8 +36,11 @@ class Item(ReprMixin, TomlDataMixin):
 
         self.metadata = kwargs.get('meta', None)
 
-    def __eq__(self, value):
-        return self.ID == value.ID and self.metadata == value.metadata
+    def __eq__(self, item) -> bool:
+        return self.ID == item.ID and self.metadata == item.metadata
+
+    def __add__(self, item):
+        return Item(self.combinations[item.ID])
 
 class Inventory(ReprMixin):
 
