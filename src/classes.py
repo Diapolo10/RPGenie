@@ -24,12 +24,19 @@ class Item(ReprMixin, TomlDataMixin):
             id_num,
             file=kwargs.get('file', ITEM_FILE)
         )
+        self.ID = id_num
         self.name = item_data['name']
         self.slot = item_data['type']
+
         if self.slot in self.EQUIPMENT:
             self.attack = item_data.get('atk', None)
             self.defence = item_data.get('def', None)
             self.specialAttack = item_data.get('specialAttack', None)
+
+        self.metadata = kwargs.get('meta', None)
+
+    def __eq__(self, value):
+        return self.ID == value.ID and self.metadata == value.metadata
 
 class Inventory(ReprMixin):
 
@@ -58,10 +65,11 @@ class Inventory(ReprMixin):
         self.itemcount = len(self.items)
 
     def __len__(self):
-        return self.itemcount
+        return len(self.items)
 
     def append(self, item: Item):
-        if self.itemcount < self.ITEMS_LIMIT:
+        if len(self) < self.ITEMS_LIMIT:
+            #if self.itemcount < self.ITEMS_LIMIT:
             self.items.append(item)
             self.itemcount += 1
         else:
