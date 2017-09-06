@@ -20,31 +20,73 @@ class Item(ReprMixin, TomlDataMixin):
                  'shield',)
 
     def __init__(self, id_num: int, **kwargs):
+
+        """
+        Initiates an Item object
+
+        Arguments:
+        - id_num: an unique integer representing the item to be created. Required.
+
+        Optional keyword arguments:
+        - file: name of, or path to, a file from which the item data is gathered.
+                Defaults to the ITEM_FILE constant.
+        - meta: metadata describing the item, defaults to None
+        """
+
+        # Get item data with TomlDataMixin.get_item_by_ID()
         item_data = self.get_item_by_ID(
             id_num,
             file=kwargs.get('file', ITEM_FILE)
         )
+
+        # Basic attributes every item has defined
         self.ID = str(id_num)
         self.name = item_data['name']
         self.slot = item_data['type']
-        self.combinations = item_data.get('combine', None)
 
+        # Attributes exclusive to wearable items
         if self.slot in self.EQUIPMENT:
             self.attack = item_data.get('atk', None)
             self.defence = item_data.get('def', None)
             self.specialAttack = item_data.get('specialAttack', None)
 
+        # Miscellaneous optional attributes
+        self.stackable = item_data.get('stackable', False)
+        self.combinations = item_data.get('combine', None)
         self.metadata = kwargs.get('meta', None)
 
-    def __eq__(self, item) -> bool:
+    def __eq__(self, item):
+        """ Compares the ID and metadata values of two items """
         return self.ID == item.ID and self.metadata == item.metadata
 
-    def __add__(self, item):
-        return Item(self.combinations[item.ID])
+    def __lt__(self, item):
+        try:
+            return int(self.ID) < int(item.ID)
+        except ValueError:
+            if self.ID.isdigit() and not item.ID.isdigit():
+                return True
+            elif self.ID.isdigit():
+                return self.ID < item.ID
+            return False
+
+    def __gt__(self, item):
+        try:
+            return int(self.ID) > int(item.ID)
+        except ValueError:
+            if self.ID.isdigit() and not item.ID.isdigit():
+                return False
+            elif self.ID.isdigit():
+                return self.ID > item.ID
+            return True
+
+    # def __add__(self, item):
+    #     """ If the two items can be combined, returns the new combination item """
+    #     return Item(self.combinations[item.ID])
 
 class Inventory(ReprMixin):
 
-    ITEMS_LIMIT = 28
+    """ Class used to create inventories """
+
     GEAR_SLOTS = {
         "weapon": None,
         "helmet": None,
@@ -53,11 +95,13 @@ class Inventory(ReprMixin):
         "shield": None,
         }
 
-    def __init__(self, gear=None, items=None):
+    def __init__(self, gear=None, items=None, **kwargs):
         if gear is None:
             self.gear = deepcopy(self.GEAR_SLOTS)
         else: #TODO: Check for validity
             self.gear = gear
+
+        self.ITEMS_LIMIT = kwargs.get('max_item_count', 28)
 
         if items is None:
             self.items = []
@@ -110,6 +154,18 @@ class Inventory(ReprMixin):
             return f"You unequip {self.items[-1].name}"
         else:
             return "That slot is empty"
+
+    def combine_item(self, *items): #TODO: Improve
+        try:
+            required_items = items[0].combinations
+            self.append(Item(required_items[items[1].ID]))
+            for item in items:
+                self.remove(item)
+            return "Combination successful"
+        except (IndexError, KeyError):
+            return "Could not combine those items"
+        except Exception as e:
+            return f"An unexpected problem has occurred: {e}"
 
 class Player(ReprMixin):
     """ Base class for player objects """
