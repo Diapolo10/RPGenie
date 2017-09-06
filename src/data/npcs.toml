@@ -1,0 +1,23 @@
+# Define friendly, non-combat NPCs here
+# Basic syntax:
+#
+# [npc.{NPC ID}]
+# name: NPC name (type: str)
+# type: special attribute or skill
+#       - shop: able to buy and sell items/abilities to the player party
+#       - bank: able to store the player's items
+#       - quest: is featured in a quest as a person you need to talk to
+#       - none: just a regular NPC with no real qualities
+# dialogue: a dictionary of all the dialogue options you can have with this NPC
+
+[npc]
+
+[npc.0]
+name = "Doomsayer"
+type = "none"
+dialogue = {
+  default = [ # default is run if no other options are available
+    "Doom! It's everywhere!",
+    "No one can run, for they are doomed!",
+  ]
+}
