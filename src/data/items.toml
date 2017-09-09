@@ -5,8 +5,8 @@
 # name: item's in-game name (type: str)
 # type: on which slot can the item be worn? (type: str)
 #       - weapon: weapon slot
-#       - shield: shield slot
-#       - helmet: helmet slot
+#       - off-hand: off-hand slot (shields etc)
+#       - head: head slot
 #       - chest: chest slot
 #       - legs: legs slot
 #       - item: cannot be worn; eg. healing items, key items etc.
@@ -34,13 +34,13 @@ combine       = {0 = 4}
 
 [items.2]
 name          = "Viking helmet"
-type          = "helmet"
+type          = "head"
 atk           = 0
 def           = 12
 
 [items.3]
 name          = "Wooden shield"
-type          = "shield"
+type          = "off-hand"
 atk           = 0
 def           = 5
 

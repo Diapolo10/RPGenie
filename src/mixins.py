@@ -1,4 +1,9 @@
+#! python3
+
+""" Collection of mixins for additional functionality """
+
 # Built-in libraries
+import math
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
@@ -8,10 +13,10 @@ import toml
 # Local libraries
 from settings import *
 
+
 class TomlDataMixin(metaclass=ABCMeta):
-    """
-    Contains methods for getting data from TOML-files
-    """
+    """ Contains methods for getting data from TOML-files """
+
     def _get_by_ID(self, ID: int, obj_type: str, file: str) -> dict:
         """ 'Low-level' access to TOML-data """
         with open(file) as f:
@@ -36,14 +41,14 @@ class TomlDataMixin(metaclass=ABCMeta):
 
 
 class ReprMixin(metaclass=ABCMeta):
-    """
-    Automatically generates a __repr__-method for any class
-    """
+    """ Automatically generates a __repr__-method for any class """
+
     def __repr__(self):
         """ Automatically generated __repr__-method """
-        variables = [f"{k}={v}" if type(v) != str
-                     else f'{k}="{v}"'
-                     for k,v in vars(self).items()]
+
+        variables = [f"{key}={value}" if type(value) != str
+                     else f'{key}="{value}"'
+                     for key, value in vars(self).items()]
         v_string = ", ".join(variables)
         class_name = self.__class__.__name__
         return f"{class_name}({{}})".format(v_string)
@@ -62,6 +67,7 @@ class LevelMixin(metaclass=ABCMeta):
         - exponent: modifies the XP curve required to level-up, defaults to 1.6
         - base_exp: sets the EXP required to reach level 2, defaults to 85
         """
+
         self.level      = int(kwargs.get("level", 1))
         self.experience = int(kwargs.get("exp", 0))
         self.exponent   = float(kwargs.get("exponent", 1.6))
@@ -69,7 +75,12 @@ class LevelMixin(metaclass=ABCMeta):
         self.max_level  = int(kwargs.get("max_level", None))
 
     def nextLevel(self):
-        """ Returns the amount of EXP needed for the next level; no built-in level cap """
+        """
+        Returns the amount of EXP needed for the next level.
+
+        No built-in level cap.
+        """
+
         return math.floor(self.baseXP * (self.level**self.exponent))
 
     def levelup(self, print_exp=False):

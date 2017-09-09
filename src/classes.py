@@ -3,21 +3,22 @@ from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
 # 3rd-party libraries
-import toml
+# None
 
 # Local libraries
 from settings import *
 from mixins import *
+
 
 class Item(ReprMixin, TomlDataMixin):
 
     """ Class for generating item objects; used by Inventory and Player """
 
     EQUIPMENT = ('weapon',
-                 'helmet',
+                 'head',
                  'chest',
                  'legs',
-                 'shield',)
+                 'off-hand',)
 
     def __init__(self, id_num: int, **kwargs):
 
@@ -79,9 +80,6 @@ class Item(ReprMixin, TomlDataMixin):
                 return self.ID > item.ID
             return True
 
-    # def __add__(self, item):
-    #     """ If the two items can be combined, returns the new combination item """
-    #     return Item(self.combinations[item.ID])
 
 class Inventory(ReprMixin):
 
@@ -89,10 +87,10 @@ class Inventory(ReprMixin):
 
     GEAR_SLOTS = {
         "weapon": None,
-        "helmet": None,
+        "head": None,
         "chest":  None,
         "legs":   None,
-        "shield": None,
+        "off-hand": None,
         }
 
     def __init__(self, gear=None, items=None, **kwargs):
@@ -101,36 +99,52 @@ class Inventory(ReprMixin):
         else: #TODO: Check for validity
             self.gear = gear
 
-        self.ITEMS_LIMIT = kwargs.get('max_item_count', 28)
+        self.MAX_ITEM_COUNT = kwargs.get('max_item_count', 28)
 
         if items is None:
             self.items = []
-        elif len(items) <= self.ITEMS_LIMIT:
+        elif len(items) <= self.MAX_ITEM_COUNT:
             self.items = items
         else:
-            raise ValueError(f"Number of items exceeded pre-set limit: {len(items)} > {self.ITEMS_LIMIT}")
+            raise ValueError(f"Number of items exceeded pre-set limit: {len(items)} > {self.MAX_ITEM_COUNT}")
 
-        self.itemcount = len(self.items)
 
     def __len__(self):
         return len(self.items)
 
     def append(self, item: Item):
-        if len(self) < self.ITEMS_LIMIT:
-            #if self.itemcount < self.ITEMS_LIMIT:
+        if len(self) < self.MAX_ITEM_COUNT:
             self.items.append(item)
-            self.itemcount += 1
         else:
             return "No room in inventory"
 
     def remove(self, item: Item):
         try:
             self.items.remove(item)
-            self.itemcount -= 1
         except ValueError:
             return f"You don't have any {item.name}s"
 
-    def equip(self, item_index: int):
+    def equip(self, item: Item):
+        """ Equip an item from inventory """
+        try:
+
+            # Ensure the inventory has an instance of the requested item
+            self.items.index(item)
+
+            temp = self.gear[item.slot]
+            self.gear[item.slot] = item
+            self.remove(item)
+            if temp is not None:
+                self.append(temp)
+                return f"You swapped {temp.name} to {item.name}"
+            else:
+                return f"You equip {item.name}"
+        except KeyError:
+            return "You can't equip that"
+        except ValueError:
+            return "You don't have that item in your inventory"
+
+    def equip_from_index(self, item_index: int):
         """ Equip an item from inventory at the specified index. """
         try:
             item = self.items[item_index] # Find the item to be equipped
@@ -167,7 +181,7 @@ class Inventory(ReprMixin):
         except Exception as e:
             return f"An unexpected problem has occurred: {e}"
 
-class Player(ReprMixin):
+class Player(ReprMixin, LevelMixin):
     """ Base class for player objects """
     def __init__(self, name, inventory=None):
         """
