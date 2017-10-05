@@ -34,15 +34,15 @@ class DataFileMixin(metaclass=ABCMeta):
         """ Returns a dictionary representation of a given item ID """
         return self._get_by_ID(ID, 'items', file)
 
-    def get_enemy_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
+    def get_enemy_by_ID(self, ID: int, file=ENEMY_FILE) -> dict:
         """ Returns a dictionary representation of a given enemy ID """
         return self._get_by_ID(ID, 'enemies', file)
 
-    def get_npc_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
+    def get_npc_by_ID(self, ID: int, file=NPC_FILE) -> dict:
         """ Returns a dictionary representation of a given NPC ID """
         return self._get_by_ID(ID, 'NPCs', file)
 
-    def get_entity_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
+    def get_entity_by_ID(self, ID: int, file=ENTITY_FILE) -> dict:
         """ Returns a dictionary representation of a given entity ID """
         return self._get_by_ID(ID, 'entities', file)
 

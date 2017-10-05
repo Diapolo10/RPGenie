@@ -121,6 +121,7 @@ class Inventory(ReprMixin):
             for inv_item in self.items:
                 if inv_item.ID == item.ID:
                     inv_item.count += item.count
+                    break
             else:
                 if len(self) < self.MAX_ITEM_COUNT:
                     self.items.append(item)
