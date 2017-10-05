@@ -4,6 +4,7 @@
 
 # Built-in libraries
 import math
+import json
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
@@ -14,28 +15,34 @@ import toml
 from settings import *
 
 
-class TomlDataMixin(metaclass=ABCMeta):
-    """ Contains methods for getting data from TOML-files """
+class DataFileMixin(metaclass=ABCMeta):
+    """ Contains methods for getting game data from files """
 
-    def _get_by_ID(self, ID: int, obj_type: str, file: str) -> dict:
-        """ 'Low-level' access to TOML-data """
+    @staticmethod
+    def _get_by_ID(ID: int, obj_type: str, file: str, file_format=DATA_FORMAT) -> dict:
+        """ 'Low-level' access to filedata """
         with open(file) as f:
-            data = toml.load(f)
+            if file_format == "json":
+                data = json.load(f, parse_int=int, parse_float=float)
+            elif file_format == "toml":
+                data = toml.load(f)
+            else:
+                raise NotImplementedError(f"Missing support for opening files of type: {file_format}")
         return data[obj_type][str(ID)]
 
     def get_item_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
         """ Returns a dictionary representation of a given item ID """
         return self._get_by_ID(ID, 'items', file)
 
-    def get_enemy_by_ID(self, ID: int, file=ENEMY_FILE) -> dict:
+    def get_enemy_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
         """ Returns a dictionary representation of a given enemy ID """
         return self._get_by_ID(ID, 'enemies', file)
 
-    def get_npc_by_ID(self, ID: int, file=NPC_FILE) -> dict:
+    def get_npc_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
         """ Returns a dictionary representation of a given NPC ID """
         return self._get_by_ID(ID, 'NPCs', file)
 
-    def get_entity_by_ID(self, ID: int, file=ENTITY_FILE) -> dict:
+    def get_entity_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
         """ Returns a dictionary representation of a given entity ID """
         return self._get_by_ID(ID, 'entities', file)
 

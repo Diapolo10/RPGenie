@@ -1,0 +1,43 @@
+{
+  "items": {
+    "0": {
+      "name": "Coin",
+      "type": "item",
+      "stackable": true
+    },
+    "1": {
+      "name": "Wooden sword",
+      "type": "weapon",
+      "atk": 5,
+      "def": 3,
+      "combine": {
+        "2": "5"
+      }
+    },
+    "2": {
+      "name": "Pebble",
+      "type": "item",
+      "combine": {
+        "1": "5"
+      }
+    },
+    "3": {
+      "name": "Viking helmet",
+      "type": "head",
+      "atk": 0,
+      "def": 12
+    },
+    "4": {
+      "name": "Wooden shield",
+      "type": "off-hand",
+      "atk": 0,
+      "def": 5
+    },
+    "5": {
+      "name": "Sharpened wooden sword",
+      "type": "weapon",
+      "atk": 6,
+      "def": 3
+    }
+  }
+}
