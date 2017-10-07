@@ -31,6 +31,7 @@ class Item(ReprMixin, DataFileMixin):
         Optional keyword arguments:
         - file: name of, or path to, a file from which the item data is gathered.
                 Defaults to the ITEM_FILE constant.
+        - count: for a stackable item, sets how many items are on the stack
         - meta: metadata describing the item, defaults to None
         """
 
@@ -44,6 +45,11 @@ class Item(ReprMixin, DataFileMixin):
         self.ID = id_num
         self.name = item_data['name']
         self.slot = item_data['type']
+        self.descriptions = item_data['examine']
+        #NOTE: The item's actual description
+        #is defined in the Item.description property!
+        #This is due to the distinction between
+        #normal and stackable items.
 
         # Attributes exclusive to wearable items
         if self.slot in self.EQUIPMENT:
@@ -83,6 +89,15 @@ class Item(ReprMixin, DataFileMixin):
             elif self.ID.isdigit():
                 return self.ID > item.ID
             return True
+
+    @property
+    def description(self):
+        if not self.stackable:
+            return self.descriptions
+        examine = self.descriptions[0]
+        if self.count >= ITEM_MAX_COUNT:
+            examine = self.descriptions[1].format(self.count)
+        return examine
 
 
 class Inventory(ReprMixin):

@@ -38,6 +38,26 @@ def test_inv_append(items, inv, *args, **kwargs):
     assert inv.append(Item(1)) == "No room in inventory"
     assert len(inv) == inv.MAX_ITEM_COUNT
 
+    #Separate tests for stackable items
+    assert inv.append(Item(0)) is None
+    assert inv.items[inv.items.index(Item(0))].count == 2
+
+@initialiser
+def test_inv_remove(items, inv, *args, **kwargs):
+    """ Test for inventory item removal """
+    inv.items[inv.items.index(Item(0))].count += 2
+
+    # Non-stackable items
+    assert inv.remove(Item(1)) is None
+    assert inv.items.count(Item(1)) == 0
+
+    # Stackable items
+    assert inv.remove(Item(0)) is None
+    assert inv.items.count(Item(0)) == 1
+    assert inv.remove(Item(0), count=3) == "You don't have that many"
+    assert inv.remove(Item(0), count=2) is None
+    assert inv.items.count(Item(0)) == 0
+
 @initialiser
 def test_inv_equip_unequip(items, inv, *args, **kwargs):
     """ Test for inventory item equip/unequip functionality """
