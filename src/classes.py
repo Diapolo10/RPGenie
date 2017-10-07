@@ -117,20 +117,18 @@ class Inventory(ReprMixin):
         return len(self.items)
 
     def append(self, item: Item):
+        add_new = True
         if item.stackable:
-            for inv_item in self.items:
-                if inv_item.ID == item.ID:
-                    inv_item.count += item.count
-                    break
+            inv_item = next((i for i in self.items if i.ID == item.ID), None)
+            if inv_item is not None:
+                add_new = False
+                inv_item.count += item.count
+
+        if add_new:
+            if len(self) < self.MAX_ITEM_COUNT:
+                self.items.append(item)
             else:
-                if len(self) < self.MAX_ITEM_COUNT:
-                    self.items.append(item)
-                else:
-                    return "No room in inventory"
-        elif len(self) < self.MAX_ITEM_COUNT:
-            self.items.append(item)
-        else:
-            return "No room in inventory"
+                return "No room in inventory"
 
     def remove(self, item: Item, count=1):
         try:
