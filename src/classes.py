@@ -10,7 +10,7 @@ from settings import *
 from mixins import *
 
 
-class Item(ReprMixin, TomlDataMixin):
+class Item(ReprMixin, DataFileMixin):
 
     """ Class for generating item objects; used by Inventory and Player """
 
@@ -41,7 +41,7 @@ class Item(ReprMixin, TomlDataMixin):
         )
 
         # Basic attributes every item has defined
-        self.ID = str(id_num)
+        self.ID = id_num
         self.name = item_data['name']
         self.slot = item_data['type']
 
@@ -54,7 +54,11 @@ class Item(ReprMixin, TomlDataMixin):
         # Miscellaneous optional attributes
         self.stackable = item_data.get('stackable', False)
         self.combinations = item_data.get('combine', None)
+        if self.combinations is not None:
+            self.combinations = {int(k):int(v) for k,v in self.combinations.items()}
         self.metadata = kwargs.get('meta', None)
+        if self.stackable:
+            self.count = kwargs.get('count', 1)
 
     def __eq__(self, item):
         """ Compares the ID and metadata values of two items """
@@ -113,14 +117,31 @@ class Inventory(ReprMixin):
         return len(self.items)
 
     def append(self, item: Item):
-        if len(self) < self.MAX_ITEM_COUNT:
-            self.items.append(item)
-        else:
-            return "No room in inventory"
+        add_new = True
+        if item.stackable:
+            inv_item = next((i for i in self.items if i.ID == item.ID), None)
+            if inv_item is not None:
+                add_new = False
+                inv_item.count += item.count
 
-    def remove(self, item: Item):
+        if add_new:
+            if len(self) < self.MAX_ITEM_COUNT:
+                self.items.append(item)
+            else:
+                return "No room in inventory"
+
+    def remove(self, item: Item, count=1):
         try:
-            self.items.remove(item)
+            if item.stackable:
+                inv_item = self.items[self.items.index(item)]
+                if inv_item.count < count:
+                    return "You don't have that many"
+                elif inv_item.count > count:
+                    inv_item.count -= count
+                else:
+                    self.items.remove(item)
+            else:
+                self.items.remove(item)
         except ValueError:
             return f"You don't have any {item.name}s"
 
