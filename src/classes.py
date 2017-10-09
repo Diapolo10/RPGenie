@@ -42,7 +42,7 @@ class Item(ReprMixin, DataFileMixin):
         )
 
         # Basic attributes every item has defined
-        self.ID = id_num
+        self.ID = int(id_num)
         self.name = item_data['name']
         self.slot = item_data['type']
         self.descriptions = item_data['examine']
@@ -60,11 +60,12 @@ class Item(ReprMixin, DataFileMixin):
         # Miscellaneous optional attributes
         self.stackable = item_data.get('stackable', False)
         self.combinations = item_data.get('combine', None)
-        if self.combinations is not None:
-            self.combinations = {int(k):int(v) for k,v in self.combinations.items()}
+        self.combinations2 = item_data.get('combine2', None)
+        #if self.combinations is not None:
+        #    self.combinations = {int(k):int(v) for k,v in self.combinations.items()}
         self.metadata = kwargs.get('meta', None)
         if self.stackable:
-            self.count = kwargs.get('count', 1)
+            self._count = kwargs.get('count', 1)
 
     def __eq__(self, item):
         """ Compares the ID and metadata values of two items """
@@ -95,8 +96,8 @@ class Item(ReprMixin, DataFileMixin):
         if not self.stackable:
             return self.descriptions
         examine = self.descriptions[0]
-        if self.count >= ITEM_MAX_COUNT:
-            examine = self.descriptions[1].format(self.count)
+        if self._count >= ITEM_MAX_COUNT:
+            examine = self.descriptions[1].format(self._count)
         return examine
 
 
@@ -134,10 +135,10 @@ class Inventory(ReprMixin):
     def append(self, item: Item):
         add_new = True
         if item.stackable:
-            inv_item = next((i for i in self.items if i.ID == item.ID), None)
+            inv_item = next((i for i in self.items if i == item), None)
             if inv_item is not None:
                 add_new = False
-                inv_item.count += item.count
+                inv_item._count += item._count
 
         if add_new:
             if len(self) < self.MAX_ITEM_COUNT:
@@ -149,10 +150,10 @@ class Inventory(ReprMixin):
         try:
             if item.stackable:
                 inv_item = self.items[self.items.index(item)]
-                if inv_item.count < count:
+                if inv_item._count < count:
                     return "You don't have that many"
-                elif inv_item.count > count:
-                    inv_item.count -= count
+                elif inv_item._count > count:
+                    inv_item._count -= count
                 else:
                     self.items.remove(item)
             else:
@@ -217,15 +218,33 @@ class Inventory(ReprMixin):
         except Exception as e:
             return f"An unexpected problem has occurred: {e}"
 
+    def better_combine_item(self, base_item: Item, combination: int, *materials):
+        try:
+            required_materials = base_item.combinations2[combination][:-1]
+            if all(True for mat in required_materials
+                   if mat in map(lambda x: x.ID, materials)):
+                self.append(Item(base_item.combinations2[combination][-1]))
+                self.remove(base_item)
+                for material in materials:
+                    self.remove(material)
+                return "Combination successful"
+            return "Could not combine those items"
+        except (IndexError, TypeError):
+            return "Could not combine those items"
+        except Exception as e:
+            return f"An unexpected problem has occurred: {e}"
+
+
 class Player(ReprMixin, LevelMixin):
     """ Base class for player objects """
-    def __init__(self, name, inventory=None):
+    def __init__(self, name, inventory=None, **kwargs):
         """
         Initialises a player object
 
         name: player's (character) name
         inventory: an Inventory() object that functions as the player's inventory
         """
+        super(Player, self).__init__(**kwargs)
         self.name = name
         if inventory is None:
             self.inventory = Inventory()

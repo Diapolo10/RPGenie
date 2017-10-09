@@ -17,7 +17,10 @@
       "def": 3,
       "combine": {
         "2": 5
-      }
+      },
+      "combine2": [
+        [2, 5]
+      ]
     },
     "2": {
       "name": "Pebble",

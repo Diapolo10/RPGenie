@@ -40,12 +40,12 @@ def test_inv_append(items, inv, *args, **kwargs):
 
     #Separate tests for stackable items
     assert inv.append(Item(0)) is None
-    assert inv.items[inv.items.index(Item(0))].count == 2
+    assert inv.items[inv.items.index(Item(0))]._count == 2
 
 @initialiser
 def test_inv_remove(items, inv, *args, **kwargs):
     """ Test for inventory item removal """
-    inv.items[inv.items.index(Item(0))].count += 2
+    inv.items[inv.items.index(Item(0))]._count += 2
 
     # Non-stackable items
     assert inv.remove(Item(1)) is None
@@ -75,5 +75,7 @@ def test_inv_equip_unequip(items, inv, *args, **kwargs):
 @initialiser
 def test_inv_combine(items, inv, *args, **kwargs):
     """ Test for item combining functionality """
-    assert inv.combine_item(inv.items[1], inv.items[2]) == "Combination successful"
+    assert inv.better_combine_item(inv.items[1], 0, inv.items[2]) == "Combination successful"
+    assert len(inv) == 2
+    assert inv.better_combine_item(inv.items[0], 0, inv.items[1]) == "Could not combine those items"
     assert len(inv) == 2
