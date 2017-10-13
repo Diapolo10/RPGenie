@@ -23,7 +23,7 @@ To suggest a new feature:
   1. A working Git or GitHub installation
   2. A text editor / Python IDE
   3. An installation of Python that supports Python version 3.6 or higher
-  4. The following, non-standard PyPI modules (availablle through pip):
+  4. The following, non-standard PyPI modules (available through pip):
       * toml
       * pytest *(used for running the tests locally, not a code dependency)*
 
