@@ -21,31 +21,45 @@
 [items]
 
 [items.0]
-name          = "Wooden sword"
-type          = "weapon"
-atk           = 5
-def           = 3
-combine       = {1 = 4}
+name          = "Coins"
+type          = "item"
+stackable     = true
+examine       = [
+  "Lovely money!",
+  "A stack of {} coins."
+]
 
 [items.1]
-name          = "Pebble"
-type          = "item"
-combine       = {0 = 4}
+name          = "Wooden sword"
+type          = "weapon"
+examine       = "A dull wooden sword."
+atk           = 5
+def           = 3
+combine       = {2 = 4}
 
 [items.2]
+name          = "Pebble"
+type          = "item"
+examine       = "A common piece of rock."
+combine       = {1 = 4}
+
+[items.3]
 name          = "Viking helmet"
 type          = "head"
+examine       = "Makes you want to drink and roar!"
 atk           = 0
 def           = 12
 
-[items.3]
+[items.4]
 name          = "Wooden shield"
 type          = "off-hand"
+examine       = "A wooden shield. Surprisingly light."
 atk           = 0
 def           = 5
 
-[items.4]
+[items.5]
 name          = "Sharpened wooden sword"
 type          = "weapon"
+examine       = "A sharpened wooden sword."
 atk           = 6
 def           = 3

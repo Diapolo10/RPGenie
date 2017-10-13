@@ -1,0 +1,55 @@
+{
+  "items": {
+    "0": {
+      "name": "Coins",
+      "type": "item",
+      "stackable": true,
+      "examine": [
+        "Lovely money!",
+        "A stack of {} coins."
+      ]
+    },
+    "1": {
+      "name": "Wooden sword",
+      "type": "weapon",
+      "examine": "A dull wooden sword.",
+      "atk": 5,
+      "def": 3,
+      "combine": {
+        "2": 5
+      },
+      "combine2": [
+        [2, 5]
+      ]
+    },
+    "2": {
+      "name": "Pebble",
+      "type": "item",
+      "examine": "A common piece of rock.",
+      "combine": {
+        "1": 5
+      }
+    },
+    "3": {
+      "name": "Viking helmet",
+      "type": "head",
+      "examine": "Makes you want to drink and roar!",
+      "atk": 0,
+      "def": 12
+    },
+    "4": {
+      "name": "Wooden shield",
+      "type": "off-hand",
+      "examine": "A wooden shield. Surprisingly light.",
+      "atk": 0,
+      "def": 5
+    },
+    "5": {
+      "name": "Sharpened wooden sword",
+      "type": "weapon",
+      "examine": "A sharpened wooden sword.",
+      "atk": 6,
+      "def": 3
+    }
+  }
+}

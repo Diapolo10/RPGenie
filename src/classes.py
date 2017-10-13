@@ -10,7 +10,7 @@ from settings import *
 from mixins import *
 
 
-class Item(ReprMixin, TomlDataMixin):
+class Item(ReprMixin, DataFileMixin):
 
     """ Class for generating item objects; used by Inventory and Player """
 
@@ -31,6 +31,7 @@ class Item(ReprMixin, TomlDataMixin):
         Optional keyword arguments:
         - file: name of, or path to, a file from which the item data is gathered.
                 Defaults to the ITEM_FILE constant.
+        - count: for a stackable item, sets how many items are on the stack
         - meta: metadata describing the item, defaults to None
         """
 
@@ -41,9 +42,14 @@ class Item(ReprMixin, TomlDataMixin):
         )
 
         # Basic attributes every item has defined
-        self.ID = str(id_num)
+        self.ID = int(id_num)
         self.name = item_data['name']
         self.slot = item_data['type']
+        self.descriptions = item_data['examine']
+        #NOTE: The item's actual description
+        #is defined in the Item.description property!
+        #This is due to the distinction between
+        #normal and stackable items.
 
         # Attributes exclusive to wearable items
         if self.slot in self.EQUIPMENT:
@@ -54,7 +60,12 @@ class Item(ReprMixin, TomlDataMixin):
         # Miscellaneous optional attributes
         self.stackable = item_data.get('stackable', False)
         self.combinations = item_data.get('combine', None)
+        self.combinations2 = item_data.get('combine2', None)
+        #if self.combinations is not None:
+        #    self.combinations = {int(k):int(v) for k,v in self.combinations.items()}
         self.metadata = kwargs.get('meta', None)
+        if self.stackable:
+            self._count = kwargs.get('count', 1)
 
     def __eq__(self, item):
         """ Compares the ID and metadata values of two items """
@@ -80,20 +91,75 @@ class Item(ReprMixin, TomlDataMixin):
                 return self.ID > item.ID
             return True
 
+    @property
+    def description(self):
+        if not self.stackable:
+            return self.descriptions
+        examine = self.descriptions[0]
+        if self._count >= ITEM_MAX_COUNT:
+            examine = self.descriptions[1].format(self._count)
+        return examine
 
-class Inventory(ReprMixin):
 
-    """ Class used to create inventories """
+class Container(ReprMixin):
+    """ Class used to create item storages """
+    def __init__(self, items=None, capacity=32, **kwargs):
+        """ Initialises Container with default values """
+        self.max_capacity = capacity
 
-    GEAR_SLOTS = {
-        "weapon": None,
-        "head": None,
-        "chest":  None,
-        "legs":   None,
-        "off-hand": None,
-        }
+        if items is None:
+            self.items = []
+        elif len(items) <= self.max_capacity:
+            self.items = items
+        else:
+            raise ValueError(f"Cannot initialise container with over {self.max_capacity} items")
+
+    def __len__(self):
+        return len(self.items)
+
+    def append(self, item: Item):
+        add_new = True
+        if item.stackable:
+            inv_item = next((i for i in self.items if i == item), None)
+            if inv_item is not None:
+                add_new = False
+                inv_item._count += item._count
+
+        if add_new:
+            if len(self) < self.MAX_ITEM_COUNT:
+                self.items.append(item)
+            else:
+                return "No room in inventory"
+
+    def remove(self, item: Item, count=1):
+        try:
+            if item.stackable:
+                inv_item = self.items[self.items.index(item)]
+                if inv_item._count < count:
+                    return "You don't have that many"
+                elif inv_item._count > count:
+                    inv_item._count -= count
+                else:
+                    self.items.remove(item)
+            else:
+                self.items.remove(item)
+        except ValueError:
+            return f"You don't have any {item.name}s"
+
+
+class Inventory(Container):
+    """ Class used to create inventories; extends Container """
 
     def __init__(self, gear=None, items=None, **kwargs):
+
+        self.GEAR_SLOTS = {
+            "weapon": None,
+            "head": None,
+            "chest":  None,
+            "legs":   None,
+            "off-hand": None,
+            }
+
         if gear is None:
             self.gear = deepcopy(self.GEAR_SLOTS)
         else: #TODO: Check for validity
@@ -106,23 +172,7 @@ class Inventory(ReprMixin):
         elif len(items) <= self.MAX_ITEM_COUNT:
             self.items = items
         else:
-            raise ValueError(f"Number of items exceeded pre-set limit: {len(items)} > {self.MAX_ITEM_COUNT}")
-
-
-    def __len__(self):
-        return len(self.items)
-
-    def append(self, item: Item):
-        if len(self) < self.MAX_ITEM_COUNT:
-            self.items.append(item)
-        else:
-            return "No room in inventory"
-
-    def remove(self, item: Item):
-        try:
-            self.items.remove(item)
-        except ValueError:
-            return f"You don't have any {item.name}s"
+            raise ValueError(f"Cannot initialise inventory with over {self.MAX_ITEM_COUNT} items")
 
     def equip(self, item: Item):
         """ Equip an item from inventory """
@@ -162,6 +212,7 @@ class Inventory(ReprMixin):
             return "There's nothing in that inventory space"
 
     def unequip(self, slot: str):
+        """ Unequip an item from specified gear slot """
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
             self.gear[slot] = None
@@ -181,15 +232,38 @@ class Inventory(ReprMixin):
         except Exception as e:
             return f"An unexpected problem has occurred: {e}"
 
-class Player(ReprMixin, LevelMixin):
+    def better_combine_item(self, base_item: Item, combination: int, *materials):
+        try:
+            required_materials = base_item.combinations2[combination][:-1]
+            if all(True for mat in required_materials
+                   if mat in map(lambda x: x.ID, materials)):
+                self.append(Item(base_item.combinations2[combination][-1]))
+                self.remove(base_item)
+                for material in materials:
+                    self.remove(material)
+                return "Combination successful"
+            return "Could not combine those items"
+        except (IndexError, TypeError):
+            return "Could not combine those items"
+        except Exception as e:
+            return f"An unexpected problem has occurred: {e}"
+
+
+class Character(ReprMixin, LevelMixin):
+    """ Base class for creating characters """
+    pass #TODO: Create an __init__ and add more methods
+
+
+class Player(Character):
     """ Base class for player objects """
-    def __init__(self, name, inventory=None):
+    def __init__(self, name, inventory=None, **kwargs):
         """
         Initialises a player object
 
         name: player's (character) name
         inventory: an Inventory() object that functions as the player's inventory
         """
+        super(Player, self).__init__(**kwargs)
         self.name = name
         if inventory is None:
             self.inventory = Inventory()
