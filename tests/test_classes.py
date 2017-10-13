@@ -21,7 +21,7 @@ def initialiser(testcase):
     def inner(*args, **kwargs):
         items = [Item(i) for i in range(kwargs.get("itemcount", 3))]
         inv = Inventory(items=deepcopy(items), **kwargs)
-        testcase(items, inv, *args, **kwargs)
+        return testcase(items, inv, *args, **kwargs)
     return inner
 
 @initialiser

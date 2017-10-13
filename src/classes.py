@@ -101,33 +101,18 @@ class Item(ReprMixin, DataFileMixin):
         return examine
 
 
-class Inventory(ReprMixin):
-
-    """ Class used to create inventories """
-
-    GEAR_SLOTS = {
-        "weapon": None,
-        "head": None,
-        "chest":  None,
-        "legs":   None,
-        "off-hand": None,
-        }
-
-    def __init__(self, gear=None, items=None, **kwargs):
-        if gear is None:
-            self.gear = deepcopy(self.GEAR_SLOTS)
-        else: #TODO: Check for validity
-            self.gear = gear
-
-        self.MAX_ITEM_COUNT = kwargs.get('max_item_count', 28)
+class Container(ReprMixin):
+    """ Class used to create item storages """
+    def __init__(self, items=None, capacity=32, **kwargs):
+        """ Initialises Container with default values """
+        self.max_capacity = capacity
 
         if items is None:
             self.items = []
-        elif len(items) <= self.MAX_ITEM_COUNT:
+        elif len(items) <= self.max_capacity:
             self.items = items
         else:
-            raise ValueError(f"Number of items exceeded pre-set limit: {len(items)} > {self.MAX_ITEM_COUNT}")
-
+            raise ValueError(f"Cannot initialise container with over {self.max_capacity} items")
 
     def __len__(self):
         return len(self.items)
@@ -160,6 +145,34 @@ class Inventory(ReprMixin):
                 self.items.remove(item)
         except ValueError:
             return f"You don't have any {item.name}s"
+
+
+class Inventory(Container):
+    """ Class used to create inventories; extends Container """
+
+    def __init__(self, gear=None, items=None, **kwargs):
+
+        self.GEAR_SLOTS = {
+            "weapon": None,
+            "head": None,
+            "chest":  None,
+            "legs":   None,
+            "off-hand": None,
+            }
+
+        if gear is None:
+            self.gear = deepcopy(self.GEAR_SLOTS)
+        else: #TODO: Check for validity
+            self.gear = gear
+
+        self.MAX_ITEM_COUNT = kwargs.get('max_item_count', 28)
+
+        if items is None:
+            self.items = []
+        elif len(items) <= self.MAX_ITEM_COUNT:
+            self.items = items
+        else:
+            raise ValueError(f"Cannot initialise inventory with over {self.MAX_ITEM_COUNT} items")
 
     def equip(self, item: Item):
         """ Equip an item from inventory """
@@ -199,6 +212,7 @@ class Inventory(ReprMixin):
             return "There's nothing in that inventory space"
 
     def unequip(self, slot: str):
+        """ Unequip an item from specified gear slot """
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
             self.gear[slot] = None
@@ -235,7 +249,12 @@ class Inventory(ReprMixin):
             return f"An unexpected problem has occurred: {e}"
 
 
-class Player(ReprMixin, LevelMixin):
+class Character(ReprMixin, LevelMixin):
+    """ Base class for creating characters """
+    pass #TODO: Create an __init__ and add more methods
+
+
+class Player(Character):
     """ Base class for player objects """
     def __init__(self, name, inventory=None, **kwargs):
         """
