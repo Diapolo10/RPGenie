@@ -18,7 +18,7 @@ __credits__    = [__author__,]
 __license__    = "GNU General Public License v3.0"
 __version__    = "0.1.0"
 __maintainer__ = __author__
-__email__      = "lari.liuhamo@gmail.com"
+__email__      = "lari.liuhamo+rpgenie@gmail.com"
 __status__     = "alpha"
 
 __doc__ = __doc__.format(__maintainer__)
