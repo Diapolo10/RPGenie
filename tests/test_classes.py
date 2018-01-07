@@ -33,10 +33,10 @@ def test_testData(items, inv, *args, **kwargs):
 def test_inv_append(items, inv, *args, **kwargs):
     """ Test for inventory append functionality """
     itemcount = len(items)
-    for i in range(inv.MAX_ITEM_COUNT - itemcount):
+    for i in range(inv.max_capacity - itemcount):
         assert inv.append(Item(2)) is None
     assert inv.append(Item(1)) == "No room in inventory"
-    assert len(inv) == inv.MAX_ITEM_COUNT
+    assert len(inv) == inv.max_capacity
 
     #Separate tests for stackable items
     assert inv.append(Item(0)) is None

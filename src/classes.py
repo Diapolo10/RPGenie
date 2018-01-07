@@ -20,13 +20,13 @@ class Item(ReprMixin, DataFileMixin):
                  'legs',
                  'off-hand',)
 
-    def __init__(self, id_num: int, **kwargs):
+    def __init__(self, id_num: int, **kwargs) -> None:
 
         """
         Initiates an Item object
 
         Arguments:
-        - id_num: an unique integer representing the item to be created. Required.
+        - id_num: a unique integer representing the item to be created. Required.
 
         Optional keyword arguments:
         - file: name of, or path to, a file from which the item data is gathered.
@@ -35,7 +35,7 @@ class Item(ReprMixin, DataFileMixin):
         - meta: metadata describing the item, defaults to None
         """
 
-        # Get item data with TomlDataMixin.get_item_by_ID()
+        # Get item data with DataFileMixin.get_item_by_ID()
         item_data = self.get_item_by_ID(
             id_num,
             file=kwargs.get('file', ITEM_FILE)
@@ -126,7 +126,7 @@ class Container(ReprMixin):
                 inv_item._count += item._count
 
         if add_new:
-            if len(self) < self.MAX_ITEM_COUNT:
+            if len(self) < self.max_capacity:
                 self.items.append(item)
             else:
                 return "No room in inventory"
@@ -165,14 +165,14 @@ class Inventory(Container):
         else: #TODO: Check for validity
             self.gear = gear
 
-        self.MAX_ITEM_COUNT = kwargs.get('max_item_count', 28)
+        self.max_capacity = kwargs.get('max_capacity', 28)
 
         if items is None:
             self.items = []
-        elif len(items) <= self.MAX_ITEM_COUNT:
+        elif len(items) <= self.max_capacity:
             self.items = items
         else:
-            raise ValueError(f"Cannot initialise inventory with over {self.MAX_ITEM_COUNT} items")
+            raise ValueError(f"Cannot initialise inventory with over {self.max_capacity} items")
 
     def equip(self, item: Item):
         """ Equip an item from inventory """
@@ -220,7 +220,9 @@ class Inventory(Container):
         else:
             return "That slot is empty"
 
-    def combine_item(self, *items): #TODO: Improve
+    def combine_item(self, *items): # NOTE: Replaced by better_combine_item
+                                    # DO NOT REMOVE until better_combine_item
+                                    # has been fully tested
         try:
             required_items = items[0].combinations
             self.append(Item(required_items[items[1].ID]))
