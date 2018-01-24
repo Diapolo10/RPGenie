@@ -1,6 +1,7 @@
 # Built-in libraries
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
+from typing import List, Dict, Any, NewType
 
 # 3rd-party libraries
 # None
@@ -67,29 +68,21 @@ class Item(ReprMixin, DataFileMixin):
         if self.stackable:
             self._count = kwargs.get('count', 1)
 
-    def __eq__(self, item):
+    def __eq__(self, item: object) -> bool:
         """ Compares the ID and metadata values of two items """
+        if not isinstance(item, Item):
+            return NotImplemented
         return self.ID == item.ID and self.metadata == item.metadata
 
-    def __lt__(self, item):
-        try:
-            return int(self.ID) < int(item.ID)
-        except ValueError:
-            if self.ID.isdigit() and not item.ID.isdigit():
-                return True
-            elif self.ID.isdigit():
-                return self.ID < item.ID
-            return False
+    def __lt__(self, item: object) -> bool:
+        if not isinstance(item, Item):
+            return NotImplemented
+        return self.ID < item.ID
 
-    def __gt__(self, item):
-        try:
-            return int(self.ID) > int(item.ID)
-        except ValueError:
-            if self.ID.isdigit() and not item.ID.isdigit():
-                return False
-            elif self.ID.isdigit():
-                return self.ID > item.ID
-            return True
+    def __gt__(self, item: object) -> bool:
+        if not isinstance(item, Item):
+            return NotImplemented
+        return self.ID > item.ID
 
     @property
     def description(self):
@@ -103,35 +96,39 @@ class Item(ReprMixin, DataFileMixin):
 
 class Container(ReprMixin):
     """ Class used to create item storages """
-    def __init__(self, items=None, capacity=32, **kwargs):
+    def __init__(self, items: List=None, capacity: int=32, **kwargs) -> None:
         """ Initialises Container with default values """
         self.max_capacity = capacity
 
+        self.name = kwargs.get('container_name', 'container')
+
         if items is None:
-            self.items = []
+            self.items: List = []
         elif len(items) <= self.max_capacity:
             self.items = items
         else:
             raise ValueError(f"Cannot initialise container with over {self.max_capacity} items")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.items)
 
-    def append(self, item: Item):
+    def append(self, item: Item) -> str:
         add_new = True
         if item.stackable:
             inv_item = next((i for i in self.items if i == item), None)
             if inv_item is not None:
                 add_new = False
                 inv_item._count += item._count
+                return f"{inv_item._count} {item.name} in container"
 
         if add_new:
             if len(self) < self.max_capacity:
                 self.items.append(item)
-            else:
-                return "No room in inventory"
+                return f"{item.name} added to inventory"
 
-    def remove(self, item: Item, count=1):
+        return "No room in inventory"
+
+    def remove(self, item: Item, count: int=1) -> str:
         try:
             if item.stackable:
                 inv_item = self.items[self.items.index(item)]
@@ -139,42 +136,56 @@ class Container(ReprMixin):
                     return "You don't have that many"
                 elif inv_item._count > count:
                     inv_item._count -= count
+                    return f"{count}/{inv_item._count+count} {item.name} removed"
                 else:
                     self.items.remove(item)
             else:
                 self.items.remove(item)
+            return f"{item.name} was successfully removed"
         except ValueError:
-            return f"You don't have any {item.name}s"
+            return f"{'You don' if self.name=='inventory' else 'The {} doesn'.format(self.name)}'t have any {item.name}s"
 
 
 class Inventory(Container):
-    """ Class used to create inventories; extends Container """
+    """ Class used to create player/NPC inventories; extends Container """
 
-    def __init__(self, gear=None, items=None, **kwargs):
+    def __init__(self, gear: Dict=None, items: List=None, **kwargs) -> None:
 
-        self.GEAR_SLOTS = {
+        # Turned into an argument in order to make Inventory class usable by
+        # different kinds of entities; including enemies. Some
+        # could have three heads, for all I know!
+        self.GEAR_SLOTS = kwargs.get('GEAR_SLOTS', {
             "weapon": None,
             "head": None,
             "chest":  None,
             "legs":   None,
             "off-hand": None,
-            }
+            })
+
+        super().__init__(items=items, capacity=kwargs.get('max_capacity', 28), name='inventory', **kwargs)
 
         if gear is None:
             self.gear = deepcopy(self.GEAR_SLOTS)
-        else: #TODO: Check for validity
-            self.gear = gear
-
-        self.max_capacity = kwargs.get('max_capacity', 28)
-
-        if items is None:
-            self.items = []
-        elif len(items) <= self.max_capacity:
-            self.items = items
         else:
-            raise ValueError(f"Cannot initialise inventory with over {self.max_capacity} items")
+            if len(self.GEAR_SLOTS) == len(gear):
+                for key in self.GEAR_SLOTS.keys():
+                    if key not in gear:
+                        raise ValueError("Equipment key type mismatch")
+                else:
+                    self.gear = gear
+            else:
+                raise ValueError("Equipment key count mismatch")
 
-    def equip(self, item: Item):
+        #self.max_capacity = kwargs.get('max_capacity', 28)
+
+        #if items is None:
+        #    self.items = []
+        #elif len(items) <= self.max_capacity:
+        #    self.items = items
+        #else:
+        #    raise ValueError(f"Cannot initialise inventory with over {self.max_capacity} items")
+
+    def equip(self, item: Item) -> str:
         """ Equip an item from inventory """
         try:
 
@@ -194,7 +205,7 @@ class Inventory(Container):
         except ValueError:
             return "You don't have that item in your inventory"
 
-    def equip_from_index(self, item_index: int):
+    def equip_from_index(self, item_index: int) -> str:
         """ Equip an item from inventory at the specified index. """
         try:
             item = self.items[item_index] # Find the item to be equipped
@@ -211,7 +222,7 @@ class Inventory(Container):
         except IndexError:
             return "There's nothing in that inventory space"
 
-    def unequip(self, slot: str):
+    def unequip(self, slot: str) -> str:
         """ Unequip an item from specified gear slot """
         if self.gear[slot] is not None:
             self.append(self.gear[slot])
@@ -234,7 +245,7 @@ class Inventory(Container):
         except Exception as e:
             return f"An unexpected problem has occurred: {e}"
 
-    def better_combine_item(self, base_item: Item, combination: int, *materials):
+    def better_combine_item(self, base_item: Item, combination: int, *materials) -> str:
         try:
             required_materials = base_item.combinations2[combination][:-1]
             if all(True for mat in required_materials
@@ -251,26 +262,30 @@ class Inventory(Container):
             return f"An unexpected problem has occurred: {e}"
 
 
-class Character(ReprMixin, LevelMixin):
+class Character(ReprMixin, LevelMixin, SpritesMixin, metaclass=ABCMeta):
     """ Base class for creating characters """
-    pass #TODO: Create an __init__ and add more methods
+    #TODO: add more methods
 
+    def __init__(self, name, inventory: Inventory=None, **kwargs) -> None:
+        self.name = name
+        inventory_size = kwargs.get('inventory_size', 28)
+        if inventory is None:
+            self.inventory = Inventory(capacity=inventory_size)
+        else:
+            self.inventory: Inventory = inventory
+
+        self.load_char_sprites(self.name)
 
 class Player(Character):
     """ Base class for player objects """
-    def __init__(self, name, inventory=None, **kwargs):
+    def __init__(self, name, inventory: Inventory=None, **kwargs) -> None:
         """
         Initialises a player object
 
         name: player's (character) name
-        inventory: an Inventory() object that functions as the player's inventory
+        inventory: an Inventory object that functions as the player's inventory
         """
-        super(Player, self).__init__(**kwargs)
-        self.name = name
-        if inventory is None:
-            self.inventory = Inventory()
-        else:
-            self.inventory = inventory
+        super(Player, self).__init__(name, inventory, **kwargs)
 
 if __name__ == "__main__":
     pass

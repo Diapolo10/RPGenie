@@ -55,3 +55,6 @@ __pycache__/
 # CMD launcher
 src/cmd.bat
 *.egg-info/
+
+# MyPy cache
+.mypy_cache

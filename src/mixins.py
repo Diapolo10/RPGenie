@@ -5,6 +5,9 @@
 # Built-in libraries
 import math
 import json
+
+from pathlib import Path
+from typing import List, Dict, Any, NewType
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
@@ -125,3 +128,24 @@ class LevelMixin(metaclass=ABCMeta):
         self.experience += amount
         if check_level_up:
             self.level_up(print_exp)
+
+class SpritesMixin(metaclass=ABCMeta):
+    """
+    Contains methods for loading sprites for game objects
+
+    Future: Implement other general sprite functionality
+    """
+
+    def __load_sprites(self, type: str, obj: str) -> List: #TODO: Fill in the sprite object type
+        path = Path(__file__).parent / "img" / type / obj
+        sprites = []
+        for sprite in path.glob('*.png/*.jpg/.bmp'):
+            #TODO: Implement file loading
+            sprites.append(sprite)
+        return sprites
+
+    def load_char_sprites(self, name: str):
+        return self.__load_sprites('chars', name.lower())
+
+    def load_item_sprites(self, ID: int):
+        return self.__load_sprites('items', str(ID))

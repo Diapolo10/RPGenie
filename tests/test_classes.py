@@ -3,14 +3,15 @@
 """ Pytest-compatible tests for src/classes.py """
 
 import sys
-import os
+
+from pathlib import Path
 from copy import deepcopy
 from unittest import mock
 
 # A workaround for tests not automatically setting
 # root/src/ as the current working directory
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../src/')
+path_to_src = Path(__file__).parent.parent / "src"
+sys.path.insert(0, str(path_to_src))
 
 from classes import Item, Inventory, Player
 from settings import *
@@ -34,12 +35,12 @@ def test_inv_append(items, inv, *args, **kwargs):
     """ Test for inventory append functionality """
     itemcount = len(items)
     for i in range(inv.max_capacity - itemcount):
-        assert inv.append(Item(2)) is None
+        assert inv.append(Item(2)) == f"{Item(2).name} added to inventory"
     assert inv.append(Item(1)) == "No room in inventory"
     assert len(inv) == inv.max_capacity
 
     #Separate tests for stackable items
-    assert inv.append(Item(0)) is None
+    assert inv.append(Item(0)) == f"2 {Item(0).name} in container"
     assert inv.items[inv.items.index(Item(0))]._count == 2
 
 @initialiser
@@ -48,14 +49,14 @@ def test_inv_remove(items, inv, *args, **kwargs):
     inv.items[inv.items.index(Item(0))]._count += 2
 
     # Non-stackable items
-    assert inv.remove(Item(1)) is None
+    assert inv.remove(Item(1)) == f"{Item(1).name} was successfully removed"
     assert inv.items.count(Item(1)) == 0
 
     # Stackable items
-    assert inv.remove(Item(0)) is None
+    assert inv.remove(Item(0)) == f"1/{inv.items[inv.items.index(Item(0))]._count+1} {Item(0).name} removed"
     assert inv.items.count(Item(0)) == 1
     assert inv.remove(Item(0), count=3) == "You don't have that many"
-    assert inv.remove(Item(0), count=2) is None
+    assert inv.remove(Item(0), count=2) == f"{Item(0).name} was successfully removed"
     assert inv.items.count(Item(0)) == 0
 
 @initialiser
