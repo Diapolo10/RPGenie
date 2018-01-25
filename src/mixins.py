@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 from typing import List, Dict, Union, Any, NewType
 from copy import deepcopy
+from functools import lru_cache
 from abc import ABCMeta, abstractmethod
 
 # 3rd-party libraries
@@ -22,6 +23,7 @@ class DataFileMixin(metaclass=ABCMeta):
     """ Contains methods for getting game data from files """
 
     @staticmethod
+    @lru_cache(maxsize=128, typed=True)
     def _get_by_ID(ID: int, obj_type: str, file: str, file_format: str=DATA_FORMAT) -> Dict:
         """ 'Low-level' access to filedata """
         with open(file) as f:
@@ -118,6 +120,7 @@ class LevelMixin(metaclass=ABCMeta):
                     print_exp = True
         if print_exp and (self.max_level is None or self.level < self.max_level):
             return f"EXP required for next level: {int(self.next_level-self.experience)}"
+        return None
 
     def give_exp(self, amount: int, check_level_up=True, print_exp=False):
         """
