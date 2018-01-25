@@ -7,7 +7,7 @@ import math
 import json
 
 from pathlib import Path
-from typing import List, Dict, Any, NewType
+from typing import List, Dict, Union, Any, NewType
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 
@@ -22,7 +22,7 @@ class DataFileMixin(metaclass=ABCMeta):
     """ Contains methods for getting game data from files """
 
     @staticmethod
-    def _get_by_ID(ID: int, obj_type: str, file: str, file_format=DATA_FORMAT) -> dict:
+    def _get_by_ID(ID: int, obj_type: str, file: str, file_format: str=DATA_FORMAT) -> Dict:
         """ 'Low-level' access to filedata """
         with open(file) as f:
             if file_format == "json":
@@ -33,19 +33,19 @@ class DataFileMixin(metaclass=ABCMeta):
                 raise NotImplementedError(f"Missing support for opening files of type: {file_format}")
         return data[obj_type][str(ID)]
 
-    def get_item_by_ID(self, ID: int, file=ITEM_FILE) -> dict:
+    def get_item_by_ID(self, ID: int, file: str=ITEM_FILE) -> Dict:
         """ Returns a dictionary representation of a given item ID """
         return self._get_by_ID(ID, 'items', file)
 
-    def get_enemy_by_ID(self, ID: int, file=ENEMY_FILE) -> dict:
+    def get_enemy_by_ID(self, ID: int, file: str=ENEMY_FILE) -> Dict:
         """ Returns a dictionary representation of a given enemy ID """
         return self._get_by_ID(ID, 'enemies', file)
 
-    def get_npc_by_ID(self, ID: int, file=NPC_FILE) -> dict:
+    def get_npc_by_ID(self, ID: int, file: str=NPC_FILE) -> Dict:
         """ Returns a dictionary representation of a given NPC ID """
         return self._get_by_ID(ID, 'NPCs', file)
 
-    def get_entity_by_ID(self, ID: int, file=ENTITY_FILE) -> dict:
+    def get_entity_by_ID(self, ID: int, file: str=ENTITY_FILE) -> Dict:
         """ Returns a dictionary representation of a given entity ID """
         return self._get_by_ID(ID, 'entities', file)
 
@@ -78,15 +78,14 @@ class LevelMixin(metaclass=ABCMeta):
         - base_exp: sets the EXP required to reach level 2, defaults to 85
         """
         super(LevelMixin, self).__init__()
-        self.level      = int(kwargs.get("level", 1))
-        self.experience = int(kwargs.get("exp", 0))
-        self.exponent   = float(kwargs.get("exponent", 1.6))
-        self.base_exp   = int(kwargs.get("base_exp", 85))
-        self.max_level  = kwargs.get("max_level", None)
-        self.max_level  = int(self.max_level) if self.max_level is not None else None
+        self.level: int = int(kwargs.get("level", 1))
+        self.experience: int = int(kwargs.get("exp", 0))
+        self.exponent: float = float(kwargs.get("exponent", 1.6))
+        self.base_exp: int = int(kwargs.get("base_exp", 85))
+        self.max_level: Union[int, None] = kwargs.get("max_level", None)
 
     @property
-    def next_level(self):
+    def next_level(self) -> int:
         """
         Returns the amount of EXP needed for the next level.
 
@@ -95,7 +94,7 @@ class LevelMixin(metaclass=ABCMeta):
 
         return math.floor(self.base_exp * (self.level**self.exponent))
 
-    def level_up(self, print_exp=False):
+    def level_up(self, print_exp: bool=False) -> Union[str, None]:
         """
         Checks if object has acquired enough EXP to level up.
 
@@ -111,6 +110,7 @@ class LevelMixin(metaclass=ABCMeta):
         By changing it to True, the EXP required is printed regardless.
         By changing it to None, the EXP is never printed.
         """
+
         while self.next_level <= self.experience:
             if self.max_level is None or self.level < self.max_level:
                 self.level += 1
@@ -136,12 +136,13 @@ class SpritesMixin(metaclass=ABCMeta):
     Future: Implement other general sprite functionality
     """
 
-    def __load_sprites(self, type: str, obj: str) -> List: #TODO: Fill in the sprite object type
+    @staticmethod
+    def __load_sprites(type: str, obj: str) -> List: #TODO: Fill in the sprite object type
         path = Path(__file__).parent / "img" / type / obj
         sprites = []
-        for sprite in path.glob('*.png/*.jpg/.bmp'):
+        for sprite in path.resolve().glob('**/*'):
             #TODO: Implement file loading
-            sprites.append(sprite)
+            sprites.append(str(sprite))
         return sprites
 
     def load_char_sprites(self, name: str):
@@ -149,3 +150,10 @@ class SpritesMixin(metaclass=ABCMeta):
 
     def load_item_sprites(self, ID: int):
         return self.__load_sprites('items', str(ID))
+
+if __name__ == '__main__':
+    class A(SpritesMixin):
+        pass
+
+    print(A().load_item_sprites(-1))
+    print(A().load_char_sprites('example'))
