@@ -96,9 +96,9 @@ class Item(ReprMixin, DataFileMixin):
 
 class Container(ReprMixin):
     """ Class used to create item storages """
-    def __init__(self, items: List=None, capacity: int=32, **kwargs) -> None:
+    def __init__(self, items: List=None, max_capacity: int=32, **kwargs) -> None:
         """ Initialises Container with default values """
-        self.max_capacity = capacity
+        self.max_capacity = max_capacity
 
         self.name = kwargs.get('container_name', 'container')
 
@@ -162,7 +162,7 @@ class Inventory(Container):
             "off-hand": None,
             })
 
-        super().__init__(items=items, capacity=kwargs.get('max_capacity', 28), name='inventory', **kwargs)
+        super().__init__(items=items, max_capacity=kwargs.get('max_capacity', 28), name='inventory', **kwargs)
 
         if gear is None:
             self.gear = deepcopy(self.GEAR_SLOTS)
@@ -273,7 +273,7 @@ class Character(ReprMixin, LevelMixin, SpritesMixin, metaclass=ABCMeta):
             self.inventory = Inventory(capacity=inventory_size)
         else:
             self.inventory: Inventory = inventory
-
+        super(Character, self).__init__()
         self.load_char_sprites(self.name)
 
 class Player(Character):
@@ -288,4 +288,9 @@ class Player(Character):
         super(Player, self).__init__(name, inventory, **kwargs)
 
 if __name__ == "__main__":
-    pass
+    # Initialise all classes for testing
+    item = Item(0)
+    cont = Container()
+    inv = Inventory()
+    char = Character('John Doe')
+    player = Player('Jane Doe')

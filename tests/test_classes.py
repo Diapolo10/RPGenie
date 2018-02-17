@@ -13,7 +13,7 @@ from unittest import mock
 path_to_src = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(path_to_src))
 
-from classes import Item, Inventory, Player
+from classes import Item, Inventory, Player, Character
 from settings import *
 
 
@@ -80,3 +80,15 @@ def test_inv_combine(items, inv, *args, **kwargs):
     assert len(inv) == 2
     assert inv.better_combine_item(inv.items[0], 0, inv.items[1]) == "Could not combine those items"
     assert len(inv) == 2
+
+def test_char_levelmixin():
+    """ Test for level-up functionality """
+    char = Character('John Doe', max_level = 5)
+
+    assert 1 == char.level
+    assert 85 == char.next_level
+    assert char.give_exp(85) == f"Congratulations! You've levelled up; your new level is {char.level}\nEXP required for next level: {int(char.next_level-char.experience)}\nCurrent EXP: {char.experience}"
+    for _ in range(char.max_level - char.level):
+        char.give_exp(char.next_level)
+    assert char.level == char.max_level
+    assert char.give_exp(char.next_level) == f""

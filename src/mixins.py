@@ -83,7 +83,7 @@ class LevelMixin(metaclass=ABCMeta):
         self.level: int = int(kwargs.get("level", 1))
         self.experience: int = int(kwargs.get("exp", 0))
         self.exponent: float = float(kwargs.get("exponent", 1.6))
-        self.base_exp: int = int(kwargs.get("base_exp", 85))
+        self._base_exp: int = int(kwargs.get("base_exp", 85))
         self.max_level: Union[int, None] = kwargs.get("max_level", None)
 
     @property
@@ -94,7 +94,7 @@ class LevelMixin(metaclass=ABCMeta):
         No built-in level cap.
         """
 
-        return math.floor(self.base_exp * (self.level**self.exponent))
+        return math.floor(self._base_exp * (self.level**self.exponent))
 
     def level_up(self, print_exp: bool=False) -> Union[str, None]:
         """
@@ -113,16 +113,31 @@ class LevelMixin(metaclass=ABCMeta):
         By changing it to None, the EXP is never printed.
         """
 
+        results = []
+        gained_levels = 0
+
         while self.next_level <= self.experience:
             if self.max_level is None or self.level < self.max_level:
                 self.level += 1
+                gained_levels += 1
                 if print_exp is not None:
                     print_exp = True
-        if print_exp and (self.max_level is None or self.level < self.max_level):
-            return f"EXP required for next level: {int(self.next_level-self.experience)}"
-        return None
 
-    def give_exp(self, amount: int, check_level_up=True, print_exp=False):
+        if gained_levels == 1:
+            results.append(f"Congratulations! You've levelled up; your new level is {self.level}")
+        elif gained_levels > 1:
+            results.append(f"Congratulations! You levelled up {gained_levels} times in one go. Your new level is {self.level}")
+
+        if print_exp and (self.max_level is None or self.level < self.max_level):
+            results.append(f"EXP required for next level: {int(self.next_level-self.experience)}")
+
+        if print_exp:
+            results.append(f"Current EXP: {self.experience}")
+
+        formatted_results = "\n".join(results)
+        return formatted_results if formatted_results else None
+
+    def give_exp(self, amount: int, check_level_up=True, print_exp=False) -> Union[str, None]:
         """
         Give the object experience points.
 
@@ -130,7 +145,7 @@ class LevelMixin(metaclass=ABCMeta):
         """
         self.experience += amount
         if check_level_up:
-            self.level_up(print_exp)
+            return self.level_up(print_exp)
 
 class SpritesMixin(metaclass=ABCMeta):
     """
@@ -144,7 +159,7 @@ class SpritesMixin(metaclass=ABCMeta):
         path = Path(__file__).parent / "img" / type / obj
         sprites = []
         for sprite in path.resolve().glob('**/*'):
-            #TODO: Implement file loading
+            #TODO: Implement file loading as file objects
             sprites.append(str(sprite))
         return sprites
 
