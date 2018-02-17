@@ -11,6 +11,8 @@ The toolkit is aiming to be fully compatible with Python versions 3.6 and up.
 RPGenie is currently being maintained by {}.
 """
 
+AT: str = "@"
+
 __author__     = "Lari Liuhamo"
 __copyright__  = f"Copyright 2017, {__author__}."
 __credits__    = [__author__,]
@@ -18,7 +20,7 @@ __credits__    = [__author__,]
 __license__    = "GNU General Public License v3.0"
 __version__    = "0.1.0"
 __maintainer__ = __author__
-__email__      = "lari.liuhamo@gmail.com"
+__email__      = f"lari.liuhamo{AT}gmail.com"
 __status__     = "alpha"
 
 __doc__ = __doc__.format(__maintainer__)
