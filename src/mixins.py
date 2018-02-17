@@ -79,7 +79,7 @@ class LevelMixin(metaclass=ABCMeta):
         - exponent: modifies the XP curve required to level-up, defaults to 1.6
         - base_exp: sets the EXP required to reach level 2, defaults to 85
         """
-        super(LevelMixin, self).__init__()
+        #super(LevelMixin, self).__init__()
         self.level: int = int(kwargs.get("level", 1))
         self.experience: int = int(kwargs.get("exp", 0))
         self.exponent: float = float(kwargs.get("exponent", 1.6))
@@ -146,6 +146,7 @@ class LevelMixin(metaclass=ABCMeta):
         self.experience += amount
         if check_level_up:
             return self.level_up(print_exp)
+        return None
 
 class SpritesMixin(metaclass=ABCMeta):
     """
@@ -168,10 +169,3 @@ class SpritesMixin(metaclass=ABCMeta):
 
     def load_item_sprites(self, ID: int):
         return self.__load_sprites('items', str(ID))
-
-if __name__ == '__main__':
-    class A(SpritesMixin):
-        pass
-
-    print(A().load_item_sprites(-1))
-    print(A().load_char_sprites('example'))

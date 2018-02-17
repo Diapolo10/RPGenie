@@ -273,7 +273,8 @@ class Character(ReprMixin, LevelMixin, SpritesMixin, metaclass=ABCMeta):
             self.inventory = Inventory(capacity=inventory_size)
         else:
             self.inventory: Inventory = inventory
-        super(Character, self).__init__()
+        #super(Character, self).__init__(**kwargs)
+        LevelMixin.__init__(self, **kwargs)
         self.load_char_sprites(self.name)
 
 class Player(Character):
