@@ -117,6 +117,9 @@ class LevelMixin(metaclass=ABCMeta):
         gained_levels = 0
 
         while self.next_level <= self.experience:
+            if self.level == self.max_level:
+                break
+
             if self.max_level is None or self.level < self.max_level:
                 self.level += 1
                 gained_levels += 1
@@ -135,7 +138,7 @@ class LevelMixin(metaclass=ABCMeta):
             results.append(f"Current EXP: {self.experience}")
 
         formatted_results = "\n".join(results)
-        return formatted_results if formatted_results else None
+        return formatted_results
 
     def give_exp(self, amount: int, check_level_up=True, print_exp=False) -> Union[str, None]:
         """
