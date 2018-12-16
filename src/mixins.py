@@ -6,17 +6,22 @@
 import math
 import json
 
-from pathlib import Path
-from typing import List, Dict, Union, Any, NewType
+from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 from functools import lru_cache
-from abc import ABCMeta, abstractmethod
+from numbers import Real
+from pathlib import Path
+from typing import List, Dict, Any, NewType, Optional
 
 # 3rd-party libraries
 import toml
 
 # Local libraries
-from settings import *
+from rpgenie_settings import settings
+
+# NOTE: Currently function return type annotations break MagicPython's syntax highlighting. To
+# alleviate the problem, comments that take the form '#):' have been added to the code.
+# They will be removed when the syntax highlighting works again.
 
 
 class DataFileMixin(metaclass=ABCMeta):
@@ -24,7 +29,7 @@ class DataFileMixin(metaclass=ABCMeta):
 
     @staticmethod
     @lru_cache(maxsize=128, typed=True)
-    def _get_by_ID(ID: int, obj_type: str, file: str, file_format: str=DATA_FORMAT) -> Dict:
+    def _get_by_ID(ID: int, obj_type: str, file: str, file_format: str=settings.data_format) -> Dict: #):
         """ 'Low-level' access to filedata """
         with open(file) as f:
             if file_format == "json":
@@ -35,19 +40,19 @@ class DataFileMixin(metaclass=ABCMeta):
                 raise NotImplementedError(f"Missing support for opening files of type: {file_format}")
         return data[obj_type][str(ID)]
 
-    def get_item_by_ID(self, ID: int, file: str=ITEM_FILE) -> Dict:
+    def get_item_by_ID(self, ID: int, file: str=settings.item_file) -> Dict: #):
         """ Returns a dictionary representation of a given item ID """
         return self._get_by_ID(ID, 'items', file)
 
-    def get_enemy_by_ID(self, ID: int, file: str=ENEMY_FILE) -> Dict:
+    def get_enemy_by_ID(self, ID: int, file: str=settings.enemy_file) -> Dict: #):
         """ Returns a dictionary representation of a given enemy ID """
         return self._get_by_ID(ID, 'enemies', file)
 
-    def get_npc_by_ID(self, ID: int, file: str=NPC_FILE) -> Dict:
+    def get_npc_by_ID(self, ID: int, file: str=settings.npc_file) -> Dict: #):
         """ Returns a dictionary representation of a given NPC ID """
         return self._get_by_ID(ID, 'NPCs', file)
 
-    def get_entity_by_ID(self, ID: int, file: str=ENTITY_FILE) -> Dict:
+    def get_entity_by_ID(self, ID: int, file: str=settings.entity_file) -> Dict: #):
         """ Returns a dictionary representation of a given entity ID """
         return self._get_by_ID(ID, 'entities', file)
 
@@ -81,13 +86,13 @@ class LevelMixin(metaclass=ABCMeta):
         """
         #super(LevelMixin, self).__init__()
         self.level: int = int(kwargs.get("level", 1))
-        self.experience: int = int(kwargs.get("exp", 0))
+        self.experience: float = float(kwargs.get("exp", 0.0))
         self.exponent: float = float(kwargs.get("exponent", 1.6))
-        self._base_exp: int = int(kwargs.get("base_exp", 85))
-        self.max_level: Union[int, None] = kwargs.get("max_level", None)
+        self._base_exp: float = float(kwargs.get("base_exp", 85))
+        self.max_level: Optional[int] = kwargs.get("max_level", None)
 
     @property
-    def next_level(self) -> int:
+    def next_level(self) -> int: #):
         """
         Returns the amount of EXP needed for the next level.
 
@@ -96,7 +101,7 @@ class LevelMixin(metaclass=ABCMeta):
 
         return math.floor(self._base_exp * (self.level**self.exponent))
 
-    def level_up(self, print_exp: bool=False) -> Union[str, None]:
+    def level_up(self, print_exp: bool=False) -> Optional[str]: #):
         """
         Checks if object has acquired enough EXP to level up.
 
@@ -129,7 +134,7 @@ class LevelMixin(metaclass=ABCMeta):
             results.append(f"Congratulations! You levelled up {gained_levels} times in one go. Your new level is {self.level}")
 
         if print_exp and (self.max_level is None or self.level < self.max_level):
-            results.append(f"EXP required for next level: {int(self.next_level-self.experience)}")
+            results.append(f"EXP required for next level: {int(self.next_level-math.trunc(self.experience))}")
 
         if print_exp:
             results.append(f"Current EXP: {self.experience}")
@@ -137,7 +142,7 @@ class LevelMixin(metaclass=ABCMeta):
         formatted_results = "\n".join(results)
         return formatted_results if formatted_results else None
 
-    def give_exp(self, amount: int, check_level_up=True, print_exp=False) -> Union[str, None]:
+    def give_exp(self, amount: int, check_level_up=True, print_exp=False) -> Optional[str]: #):
         """
         Give the object experience points.
 
@@ -156,7 +161,7 @@ class SpritesMixin(metaclass=ABCMeta):
     """
 
     @staticmethod
-    def __load_sprites(type: str, obj: str) -> List: #TODO: Fill in the sprite object type
+    def __load_sprites(type: str, obj: str) -> List: #): #TODO: Fill in the sprite object type
         path = Path(__file__).parent / "img" / type / obj
         sprites = []
         for sprite in path.resolve().glob('**/*'):
@@ -164,8 +169,8 @@ class SpritesMixin(metaclass=ABCMeta):
             sprites.append(str(sprite))
         return sprites
 
-    def load_char_sprites(self, name: str):
+    def load_char_sprites(self, name: str) -> List: #):
         return self.__load_sprites('chars', name.lower())
 
-    def load_item_sprites(self, ID: int):
+    def load_item_sprites(self, ID: int) -> List: #):
         return self.__load_sprites('items', str(ID))
